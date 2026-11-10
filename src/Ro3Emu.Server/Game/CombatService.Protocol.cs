@@ -222,7 +222,10 @@ public sealed partial class CombatService
         var effects = _data.SkillTemplateTable("Lua_Config_EffectData");
         for (long id = show * 100; id < show * 100 + 100; id++)
             if (SkillEffectData.Find(effects, id)?.BulletName != null) return (int)id;
-        return 0;
+        // The Hunter's falcon is a bullet with no prefab name, in the show*1000+200 family (Blitz Beat 13102200: it flies to the
+        // target and back); the client flies it from 31120 like any bullet.
+        long falcon = show * 1000 + 200;
+        return SkillEffectData.Find(effects, falcon) is { FliesFalcon: true } ? (int)falcon : 0;
     });
 
     /// <summary>
