@@ -90,13 +90,13 @@ namespace Ro3Emu.ClientHooks
             int wrapped = 0;
             foreach (var name in names)
             {
-                if (bulletOnly && name.IndexOf("ullet", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                if (bulletOnly && !name.Contains("ullet", StringComparison.OrdinalIgnoreCase)) continue;
                 var original = table.Obf_RuA<Obf_R.Obf_Ef>(name);
                 if (original == null) continue;
                 var probe = new Probe
                 {
                     Module = module, Name = name, Original = original,
-                    Busy = name.IndexOf("Update", StringComparison.OrdinalIgnoreCase) >= 0 || name.IndexOf("Tick", StringComparison.OrdinalIgnoreCase) >= 0,
+                    Busy = name.Contains("Update", StringComparison.OrdinalIgnoreCase) || name.Contains("Tick", StringComparison.OrdinalIgnoreCase),
                 };
                 probe.Wrapper = probe.Call;
                 Probes.Add(probe);
