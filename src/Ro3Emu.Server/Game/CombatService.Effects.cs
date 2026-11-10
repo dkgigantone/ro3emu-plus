@@ -451,13 +451,14 @@ public sealed partial class CombatService
         };
         // An extra cast sends no cast-start message, so the client shows the skill's hit effect but not the cast
         // (a Hunter's falcon stays put). playCast sends the timeline a normal cast sends, without replaying the
-        // character's own action (PlayAct false) as the cast is not the character's.
+        // character's own action (PlayAct false) as the cast is not the character's. It uses the ordinary route, not the
+        // extra one: the client takes the extra route only for a pet child (child type 41 + petConfigId), not for the player.
         if (playCast)
             await SendCastTimelineAsync(s, new UseInSkillInfo
             {
                 SrcID = s.Role.Id, SkillID = action.Request.SkillId, TargetId = target.Uid, TargetPos = target.Pos.Clone(),
                 Face = s.Face, SessionId = action.Id, ChantMs = 0, SkillMs = SkillMs(s, row), StartTime = action.StartMs, PlayAct = false,
-            }, extra: true);
+            });
         await ApplyEffectsAsync(s, action, target.Pos.Clone(), chosenTargets: targets);
     }
 
