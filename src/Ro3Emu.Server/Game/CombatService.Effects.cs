@@ -432,10 +432,11 @@ public sealed partial class CombatService
     /// <summary>
     /// An extra cast of a SkillConfig row on monsters the caller chose, through the ordinary effect path (damage, kills,
     /// statistics, 31101). It is an extra skill: it pays nothing, starts no cooldown and triggers no CastResolved.
+    /// <paramref name="playCast"/> also sends the cast timeline, for a skill whose client animation starts on it.
     /// </summary>
-    internal Task CastExtraAsync(GameSession s, JsonElement row, IReadOnlyList<MonsterUnit> targets, bool parametersApplied = false)
+    internal async Task CastExtraAsync(GameSession s, JsonElement row, IReadOnlyList<MonsterUnit> targets, bool parametersApplied = false, bool playCast = false)
     {
-        if (s.Role == null || targets.Count == 0) return Task.CompletedTask;
+        if (s.Role == null || targets.Count == 0) return;
         var target = targets[0];
         var action = new ActiveSkillCast
         {
@@ -448,7 +449,16 @@ public sealed partial class CombatService
             },
             Origin = s.Position.Clone(), StartMs = Now, ChantMs = 0, ActionMs = 1,
         };
-        return ApplyEffectsAsync(s, action, target.Pos.Clone(), chosenTargets: targets);
+        // An extra cast sends no cast-start message, so the client shows the skill's hit effect but not the cast
+        // (a Hunter's falcon stays put). playCast sends the timeline a normal cast sends, without replaying the
+        // character's own action (PlayAct false) as the cast is not the character's.
+        if (playCast)
+            await SendCastTimelineAsync(s, new UseInSkillInfo
+            {
+                SrcID = s.Role.Id, SkillID = action.Request.SkillId, TargetId = target.Uid, TargetPos = target.Pos.Clone(),
+                Face = s.Face, SessionId = action.Id, ChantMs = 0, SkillMs = SkillMs(s, row), StartTime = action.StartMs, PlayAct = false,
+            }, extra: true);
+        await ApplyEffectsAsync(s, action, target.Pos.Clone(), chosenTargets: targets);
     }
 
     /// <summary>An extra cast of a friendly SkillConfig row (a heal) on the allies the caller chose; like
