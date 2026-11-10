@@ -81,7 +81,7 @@ public sealed partial class TalentProcs
         if (Roll(10000) >= LogicValue(s, BlitzBeat, logic, 0) || _combat.ModeRow(s, (int)logic[1], level) is not { } row) return;
         var auto = new SkillConfig(row);
         var targets = Targets(s, BlitzBeatArea, auto.DescData, auto, target, []);
-        await _combat.CastExtraAsync(s, row, targets);
+        await _combat.CastExtraAsync(s, row, targets, playCast: true);
         await RuleProcsAsync(s, action, auto, targets);
     }
 
