@@ -237,6 +237,7 @@ public sealed partial class CombatService
     private async Task SendHitBulletsAsync(IEnumerable<GameSession> viewers, JsonElement row, SkillHitInfo hit, long masterId)
     {
         int effect = BulletEffect(GameData.Int(row, "_iScriptShow"));
+        if (GameData.Int(row, "_iScriptShow") == 13102) _log.LogInformation("[falcon-debug] Blitz Beat hit: skill {Skill} bullet effect {Effect} targets {Count}", hit.SkillId, effect, hit.Dsts.Count); // temporary
         if (effect == 0 || hit.Dsts.Count == 0) return;
         var recipients = viewers.ToArray();
         long now = Now;
