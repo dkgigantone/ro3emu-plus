@@ -39,6 +39,9 @@ public readonly record struct SkillEffectData(JsonElement Row)
     public string? BulletName => Bullet is { } bullet && bullet.TryGetProperty("m_kBulletName", out var name)
         && name.ValueKind == JsonValueKind.String && name.GetString() is { Length: > 0 } text ? text : null;
 
+    /// <summary>The bullet is the Hunter's falcon (m_kBulletData.m_kBulletFalcon): it flies to the target and back and has no prefab name.</summary>
+    public bool FliesFalcon => Bullet is { } bullet && bullet.TryGetProperty("m_kBulletFalcon", out var falcon) && falcon.ValueKind == JsonValueKind.Object;
+
     /// <summary>The bullet's configured life time in ms (m_fBulletLifeTime), 0 when unset.</summary>
     public int BulletLifeTime => Bullet is { } bullet && bullet.TryGetProperty("m_fBulletLifeTime", out var life)
         && life.TryGetDouble(out double ms) && ms > 0 ? (int)ms : 0;
